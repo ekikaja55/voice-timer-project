@@ -20,7 +20,19 @@ const STOPWORDS = new Set([
 	'woi',
 	'game',
 	'mati',
-	'kena'
+	'kena',
+	'no',
+	'ga',
+	'gak',
+	'ngga',
+	'nggak',
+	'kaga',
+	'ada',
+	'gaada',
+	'gakada',
+	'pake',
+	'dia',
+	'udah'
 ]);
 
 const SEPARATOR_WORDS = new Set(['terus', 'lalu', 'dan', 'sama', 'kemudian', 'abis', 'setelah']);
@@ -57,13 +69,20 @@ export function tokenizeTranscript(rawText: string): string[] {
 	// 3. Split by whitespace
 	const rawWords = text.split(/\s+/).filter((w) => w.length > 0);
 
-	// 4. Filter stopwords, but keep separators marked with a delimiter
+	// 4. Filter stopwords and pure hyphen noise
 	const cleanedTokens: string[] = [];
 	for (const word of rawWords) {
-		if (SEPARATOR_WORDS.has(word)) {
+		// Strip leading/trailing hyphens (e.g. "-flicker-" -> "flicker", "---" -> "")
+		const trimmedWord = word.replace(/^-+|-+$/g, '');
+
+		if (!trimmedWord) {
+			continue;
+		}
+
+		if (SEPARATOR_WORDS.has(trimmedWord)) {
 			cleanedTokens.push('__SEP__');
-		} else if (!STOPWORDS.has(word)) {
-			cleanedTokens.push(word);
+		} else if (!STOPWORDS.has(trimmedWord)) {
+			cleanedTokens.push(trimmedWord);
 		}
 	}
 

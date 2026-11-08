@@ -1,5 +1,6 @@
 import type { BattleSpell, ParsedPair, TimerInstance, TimerStatus } from '../types/index.js';
 import { playReadyAlert, playSpellEarcon, playUndoEarcon } from '../audio/earcons.js';
+import { voiceAnnouncer } from '../audio/voiceAnnouncer.svelte.js';
 import type {
 	WorkerInboundMessage,
 	WorkerOutboundMessage,
@@ -13,6 +14,7 @@ class TimerStore {
 
 	private worker: Worker | null = null;
 	private fallbackInterval: ReturnType<typeof setInterval> | null = null;
+	private announced10s = new Set<string>();
 
 	constructor() {
 		this.initWorker();
@@ -87,12 +89,17 @@ class TimerStore {
 				break;
 			}
 			case 'TIMER_READY': {
+				const readyTimer = this.timers.find((t) => t.id === message.payload.id);
 				if (this.audioEnabled) {
 					playReadyAlert();
+					if (readyTimer) {
+						voiceAnnouncer.announceReady(readyTimer.heroName, readyTimer.spellName);
+					}
 				}
 				break;
 			}
 			case 'TIMER_REMOVED': {
+				this.announced10s.delete(message.payload.id);
 				this.timers = this.timers.filter((t) => t.id !== message.payload.id);
 				break;
 			}
@@ -106,6 +113,17 @@ class TimerStore {
 		this.timers = this.timers.map((timer) => {
 			const tick = tickMap.get(timer.id);
 			if (tick) {
+				if (
+					tick.remainingSeconds <= 10 &&
+					tick.remainingSeconds > 0 &&
+					!this.announced10s.has(timer.id)
+				) {
+					this.announced10s.add(timer.id);
+					if (this.audioEnabled) {
+						voiceAnnouncer.announce10s(timer.heroName, timer.spellName);
+					}
+				}
+
 				return {
 					...timer,
 					remainingSeconds: tick.remainingSeconds,
@@ -203,6 +221,7 @@ class TimerStore {
 			playUndoEarcon();
 		}
 
+		this.announced10s.delete(id);
 		this.postToWorker({
 			type: 'REMOVE_TIMER',
 			payload: { id }
@@ -220,7 +239,9 @@ class TimerStore {
 	resetAll(): void {
 		this.postToWorker({ type: 'RESET_ALL' });
 		this.timers = [];
+		this.announced10s.clear();
 		this.lastDispatchedId = null;
+		voiceAnnouncer.stopAll();
 	}
 
 	/**

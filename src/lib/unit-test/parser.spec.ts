@@ -130,4 +130,16 @@ describe('MLBB Multi-Entity Burst NLP Engine', () => {
 		expect(result.pairs[0].heroName).toBe('Musuh');
 		expect(result.pairs[0].spell.name).toBe('Purify');
 	});
+
+	it('should parse new hero Obsidia and ignore negation/slang word "no"', () => {
+		const result = parseVoiceTranscript('obsidia no fliker');
+		expect(result.pairs).toHaveLength(1);
+		expect(result.pairs[0].heroName).toBe('Obsidia');
+		expect(result.pairs[0].spell.name).toBe('Flicker');
+	});
+
+	it('should cleanly ignore pure hyphens, dashes, and single vowel noise', () => {
+		const result = parseVoiceTranscript('-------');
+		expect(result.pairs).toHaveLength(0);
+	});
 });

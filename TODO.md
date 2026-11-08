@@ -120,9 +120,9 @@
 - [x] Modul Diagnostik Audio & Deteksi Hardware [src/lib/speech/audioChecker.svelte.ts](file:///C:/Users/user_hebat/workspace/voice-timer-project/src/lib/speech/audioChecker.svelte.ts):
   - Deteksi ketersediaan Web Speech API, deteksi hardware mikrofon (`enumerateDevices`), dan pengecekan status izin (`getUserMedia`).
   - Analisis sinyal suara real-time (volume meter 0-100) via `AnalyserNode`.
-- [x] Komponen Modal Diagnostik Audio [src/lib/components/AudioDiagnosticModal.svelte](file:///C:/Users/user_hebat/workspace/voice-timer-project/src/lib/components/AudioDiagnosticModal.svelte):
+- [x] Komponen Diagnostik Audio & Mic [src/lib/components/settings/SpeechDiagnosticsTab.svelte](file:///C:/Users/user_hebat/workspace/voice-timer-project/src/lib/components/settings/SpeechDiagnosticsTab.svelte):
   - Panduan interaktif konfigurasi browser (termasuk instruksi Firefox `about:config` dan rekomendasi Chromium).
-  - Indikator bar visual sinyal audio real-time saat berbicara.
+  - Indikator bar visual sinyal audio real-time saat berbicara dan Discord-style 3s mirror test.
 - [x] Komponen Shazam-Style Voice Overlay [src/lib/components/VoiceShazamOverlay.svelte](file:///C:/Users/user_hebat/workspace/voice-timer-project/src/lib/components/VoiceShazamOverlay.svelte):
   - Radar waveform animasi berdenyut responsif terhadap amplitudo suara.
   - Tampilan teks transkrip raksasa saat user berbicara beruntun.
@@ -137,8 +137,32 @@
 
 ---
 
-## FASE 9 : Pengujian Sanity Akhir & Rilis Final
+## FASE 9 : Tactical Esports Voice Announcer & Device Benchmark Suite
 
-- [ ] Jalankan sanity check linting, typechecking, dan suite unit test Vitest lengkap.
+- [x] Modul Esports Voice Announcer [src/lib/audio/voiceAnnouncer.svelte.ts](file:///C:/Users/user_hebat/workspace/voice-timer-project/src/lib/audio/voiceAnnouncer.svelte.ts):
+  - Service singleton reaktif berbasis native `window.speechSynthesis` (0 MB download, 0ms latency, didukung 100% di Firefox & Chromium).
+  - Format callout militer esports padat (< 0.7 detik, rate 1.25x-1.35x): `[Hero] [Spell] 10 seconds` / `sepuluh` (window 10s) dan `[Hero] [Spell] ready` (window 0s).
+  - Antrean cerdas non-blocking untuk mencegah audio overlap ketika multi-spell selesai berdekatan.
+  - Pilihan multi-bahasa (English default & Bahasa Indonesia) dan kontrol volume mandiri.
+- [x] Modul Device Benchmark Suite [src/lib/benchmark/deviceBenchmark.svelte.ts](file:///C:/Users/user_hebat/workspace/voice-timer-project/src/lib/benchmark/deviceBenchmark.svelte.ts):
+  - Algoritma benchmark mikro-komputasi float32 matrix operations (250 ms) mengadopsi konsep kreier/benchmark.
+  - Klasifikasi skor performa perangkat (0-100) dan penentuan estimasi latensi inferensi AI on-device.
+  - Proteksi kompatibilitas Firefox (deteksi WebGPU eksperimental dan fallback otomatis ke WASM SIMD).
+- [x] Halaman Dedicated Pengaturan [/settings](file:///C:/Users/user_hebat/workspace/voice-timer-project/src/routes/settings/+page.svelte) dengan Tab 3-in-1:
+  - Tab 1: Speech Engine & Diagnostics (Selector, Whisper Downloader, Speech Sandbox, Mic Hardware & Signal Meter, Discord-Style 3s Mirror Mic Test).
+  - Tab 2: Tactical Voice Callout (Master switch, bahasa EN/ID, volume slider, opsi window 10s/0s, tombol test voice callout).
+  - Tab 3: Device Benchmark (Hardware detection, 250ms benchmark runner, score & tier).
+  - Unsaved Changes Guard (`beforeNavigate` & `beforeunload` interception dengan modal konfirmasi 3 opsi: Batal Keluar, Buang Perubahan, Simpan & Keluar).
+  - Mini-pill background active timers warning.
+- [x] Header HUD Bersih & Minimalis:
+  - Read-only Status Badge terpadu (`[● Mic Connected • NATIVE STT]` atau `[● Mic Connected • WHISPER AI]`).
+  - Tombol navigasi langsung ke `/settings`.
+- [x] Unit test Vitest untuk Voice Announcer, Device Benchmark, Debug Logger, dan Whisper Engine.
+
+---
+
+## FASE 10 : Pengujian Sanity Akhir & Rilis Final
+
+- [x] Jalankan sanity check linting, typechecking, dan suite unit test Vitest lengkap.
 - [ ] Validasi user flow menggunakan Playwright MCP.
 - [ ] Finalisasi berkas workpad dan persetujuan user.

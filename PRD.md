@@ -38,15 +38,15 @@ Aplikasi web mandiri berbasis **Svelte 5 + Web Audio API + Web Worker** yang dil
 
 Berdasarkan evaluasi performa, latensi, dan pemeliharaan:
 
-| Layer                    | Pilihan Teknologi                      | Alasan Pemilihan Teknis & Trade-Off                                                                                                                                                                                                                                                  |
-| :----------------------- | :------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Frontend Framework**   | **Svelte 5 (Vite SPA)**                | Mengompilasi kode tanpa Virtual DOM (_zero VDOM diffing_). Mutasi DOM terjadi secara bedah (_surgical_) langsung ke elemen timer. Bundle ultra-kecil (< 20 KB runtime), startup instan pada laptop/tablet tua. Menolak SvelteKit SSR karena aplikasi ini 100% _client-side offline_. |
-| **Styling & HUD UI**     | **Tailwind CSS v4**                    | Utility-first untuk membangun antarmuka gelap (_Dark Slate HUD_) dengan hierarki kontras tinggi tanpa _runtime CSS overhead_.                                                                                                                                                        |
-| **Timer Precision Core** | **Dedicated Web Worker**               | Menjalankan _timer loop_ berbasis selisih delta waktu absolut (`performance.now()`). Bebas dari _browser tab throttling_ saat layar diminimalkan atau tidak aktif.                                                                                                                   |
-| **Audio Feedback**       | **Web Audio API (Procedural Earcons)** | Menggantikan Speech Synthesis (TTS). Memproduksi nada _chime_ instan (< 10 ms delay, durasi 60–80 ms) menggunakan `OscillatorNode`. Nol unduhan audio MP3, zero cognitive interference.                                                                                              |
-| **Burst NLP Engine**     | **Grammar-Aware Chunker + Fuse.js**    | Algoritma modular berorientasi domain MLBB. Memecah klausa kalimat, mengenali format paralel/interleaved, dan mengikat _talent modifier_ (-15% PYT) secara lokal (_scoped binding_).                                                                                                 |
-| **Speech-to-Text (STT)** | **Dual-Engine Pipeline (Hybrid)**      | **Tier 1 (MVP):** `webkitSpeechRecognition` (Chrome/Edge Native) dengan normalisasi fonetik slang agresif.<br>**Tier 2 (Offline Pro):** Vosk WebAssembly / Sherpa-ONNX Web yang dibatasi hanya pada kamus ~140 kata MLBB (latensi < 50 ms murni di CPU).                             |
-| **Offline Distribution** | **Vite PWA (`vite-plugin-pwa`)**       | Service worker yang memungkinkan aplikasi disimpan sebagai aplikasi desktop/tablet mandiri tanpa perlu koneksi internet aktif.                                                                                                                                                       |
+| Layer                    | Pilihan Teknologi                    | Alasan Pemilihan Teknis & Trade-Off                                                                                                                                                                                                                                                    |
+| :----------------------- | :----------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Frontend Framework**   | **Svelte 5 (Vite SPA)**              | Mengompilasi kode tanpa Virtual DOM (_zero VDOM diffing_). Mutasi DOM terjadi secara bedah (_surgical_) langsung ke elemen timer. Bundle ultra-kecil (< 20 KB runtime), startup instan pada laptop/tablet tua. Menolak SvelteKit SSR karena aplikasi ini 100% _client-side offline_.   |
+| **Styling & HUD UI**     | **Tailwind CSS v4**                  | Utility-first untuk membangun antarmuka gelap (_Dark Slate HUD_) dengan hierarki kontras tinggi tanpa _runtime CSS overhead_.                                                                                                                                                          |
+| **Timer Precision Core** | **Dedicated Web Worker**             | Menjalankan _timer loop_ berbasis selisih delta waktu absolut (`performance.now()`). Bebas dari _browser tab throttling_ saat layar diminimalkan atau tidak aktif.                                                                                                                     |
+| **Audio Feedback**       | **Web Audio API & Speech Synthesis** | Kombinasi Procedural Earcons (< 80 ms chime sintetis) dan Tactical Esports Voice Announcer (< 0.7s callout via `window.speechSynthesis`). Memberi peringatan suara instan tanpa mengharuskan pemain memalingkan pandangan dari layar HP.                                               |
+| **Burst NLP Engine**     | **Grammar-Aware Chunker + Fuse.js**  | Algoritma modular berorientasi domain MLBB. Memecah klausa kalimat, mengenali format paralel/interleaved, dan mengikat _talent modifier_ (-15% PYT) secara lokal (_scoped binding_).                                                                                                   |
+| **Speech-to-Text (STT)** | **Dual-Engine Pipeline (Hybrid)**    | **Tier 1 (Default):** Native Web Speech API (`SpeechRecognition`) sub-100ms streaming.<br>**Tier 2 (AI Offline):** `whisper-tiny` ONNX on-demand via Hugging Face Hub CDN & IndexedDB cache dengan proteksi Device Benchmark Gate.<br>**Tier 3 (Manual):** 1-Tap Glanceable Touch HUD. |
+| **Offline Distribution** | **Vite PWA (`vite-plugin-pwa`)**     | Service worker yang memungkinkan aplikasi disimpan sebagai aplikasi desktop/tablet mandiri tanpa perlu koneksi internet aktif.                                                                                                                                                         |
 
 ---
 
@@ -92,6 +92,13 @@ Berdasarkan evaluasi performa, latensi, dan pemeliharaan:
   - **Purify / Aegis:** Dual chime defensif (523 Hz + 659 Hz, 100 ms) — memberi rasa perisai.
   - **Retribution:** Low-frequency pulse (150 Hz $\to$ 90 Hz, 60 ms) — memberi rasa hentakan monster.
   - **Timer Ready (Cooldown Selesai):** High chime ping 2x (1046 Hz) saat cooldown musuh telah kembali tersedia.
+
+### FR-5.1: Tactical Esports Voice Announcer
+
+- Menyuarakan pengingat suara militer super padat (< 0.7 detik, rate 1.25x-1.35x) via `window.speechSynthesis`:
+  - **Peringatan 10 Detik:** `"[Hero] [Spell] sepuluh"` (contoh: _"Chou flicker sepuluh"_).
+  - **Peringatan 0 Detik (Ready):** `"[Hero] [Spell] ready"` (diselaraskan bersama earcon double-ping).
+- Menghindari _auditory masking_ dan kebingungan komunikasi Discord dengan pembatasan durasi ketat dan kendali volume independen.
 
 ### FR-6: High-Contrast Glanceable HUD (Jarak 70 cm)
 

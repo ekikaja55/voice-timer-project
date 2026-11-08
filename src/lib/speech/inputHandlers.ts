@@ -1,5 +1,6 @@
 import { speechManager } from './speechManager.svelte.js';
 import { timerStore } from '../stores/timerStore.svelte.js';
+import { debugLogger } from '../utils/debugLogger.svelte.js';
 
 let isSpaceHeld = false;
 let footPedalKey = 'Space'; // Default pedal key (can be mapped)
@@ -37,6 +38,7 @@ export function handleGlobalKeyDown(event: KeyboardEvent): void {
 	// 1. Instant Undo: Escape or Backspace
 	if (event.code === 'Escape' || event.code === 'Backspace' || event.key === 'Escape') {
 		event.preventDefault();
+		debugLogger.info('TOUCH', `Instant Undo via keyboard: ${event.code}`);
 		timerStore.undoLastTimer();
 		return;
 	}
@@ -57,7 +59,8 @@ export function handleGlobalKeyDown(event: KeyboardEvent): void {
 
 		if (!event.repeat && !isSpaceHeld) {
 			isSpaceHeld = true;
-			speechManager.startListening();
+			debugLogger.info('TOUCH', `Space/Pedal down: ${event.code}`);
+			speechManager.startListening('spacebar');
 		}
 	}
 }
@@ -71,7 +74,8 @@ export function handleGlobalKeyUp(event: KeyboardEvent): void {
 	if (isSpaceOrPedal(event) && isSpaceHeld) {
 		event.preventDefault();
 		isSpaceHeld = false;
-		speechManager.stopListening();
+		debugLogger.info('TOUCH', `Space/Pedal up: ${event.code}`);
+		speechManager.stopListening('spacebar');
 	}
 }
 
@@ -81,7 +85,8 @@ export function handleGlobalKeyUp(event: KeyboardEvent): void {
 export function handleWindowBlur(): void {
 	if (isSpaceHeld) {
 		isSpaceHeld = false;
-		speechManager.stopListening();
+		debugLogger.warn('TOUCH', 'Window blur while space held -> stopListening');
+		speechManager.stopListening('window_blur');
 	}
 }
 
@@ -90,6 +95,7 @@ export function handleWindowBlur(): void {
  */
 export function setFootPedalKey(key: string): void {
 	footPedalKey = key;
+	debugLogger.info('SYS', `Foot pedal key code updated to: ${key}`);
 }
 
 /**

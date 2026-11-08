@@ -626,6 +626,13 @@ export const HERO_LIST: Hero[] = [
 		aliases: ['layla', 'laila'],
 		defaultSpell: 'flicker'
 	},
+	{
+		id: 'obsidia',
+		name: 'Obsidia',
+		role: 'marksman',
+		aliases: ['obsidia', 'obsidian', 'obsi', 'sidia'],
+		defaultSpell: 'flicker'
+	},
 
 	// SUPPORT
 	{

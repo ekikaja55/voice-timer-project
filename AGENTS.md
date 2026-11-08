@@ -100,13 +100,19 @@ Berlaku saat diskusi melibatkan perencanaan fitur, review arsitektur, evaluasi i
 - **Sanitasi Slang Indonesia:** Bersihkan _stopwords_ khas Indonesia (_"eh", "tadi", "si", "terus", "ya", "udah", "dong"_). Gunakan Levenshtein distance dengan toleransi ketat (1–2 karakter) terhadap kamus ~140 istilah resmi di `src/lib/data/heroes.ts` dan `src/lib/data/spells.ts`.
 - **Mekanisme Instant Undo:** Jika terdeteksi kata _"batal"_ atau _"cancel"_, sistem wajib langsung membatalkan timer terakhir yang baru saja diluncurkan.
 
-### 4. Standar Audio Feedback: Procedural Earcons (No TTS Monolog)
+### 4. Standar Audio Feedback: Procedural Earcons & Tactical Esports Voice Announcer
 
-- **DILARANG** menggunakan Speech Synthesis (TTS) yang membacakan kalimat panjang (3–4 detik) karena memblokir suara _in-game sound cues_ (skill musuh dari semak) dan mengganggu komunikasi Discord tim.
+- **Prinsip Anti-Auditory Masking:** DILARANG menggunakan Speech Synthesis (TTS) yang membacakan kalimat monolog panjang (3–4 detik) karena memblokir suara _in-game sound cues_ (skill musuh dari semak) dan mengganggu komunikasi Discord tim.
 - **Wajib Gunakan Procedural Earcons (Web Audio API):**
   - Chime sintetis ultra-pendek (60–80 ms) via `AudioContext` & `OscillatorNode`.
   - Frekuensi nada unik per jenis spell (Flicker: high sine sweep; Aegis/Purify: dual-tone harmoni; Retribution: bass impact pulse; Cooldown Ready: double-ping alert).
   - Nol ketergantungan pada file audio MP3/WAV eksternal.
+- **Standar Tactical Esports Voice Announcer (Web Speech Synthesis):**
+  - Menggunakan native `window.speechSynthesis` (berjalan 100% offline di Firefox, Chrome, Edge, Safari, Android, iOS tanpa dependensi model berat).
+  - Format callout militer esports ultra-padat (< 0.7 detik, rate 1.25x - 1.35x):
+    - Pada window 10s: `"[Hero] [Spell] sepuluh"`
+    - Pada window 0s: `"[Hero] [Spell] ready"` (diselaraskan bersama earcon double-ping).
+  - Wajib menyediakan kontrol volume suara mandiri dan toggle on/off agar pemain memiliki kendali penuh.
 
 ### 5. Presisi Timer & Pencegahan Background Throttling
 
@@ -135,3 +141,9 @@ Berlaku saat diskusi melibatkan perencanaan fitur, review arsitektur, evaluasi i
 
 - DILARANG KERAS MENGGUNAKAN EMOTICON UNICODE di codebase, antarmuka pengguna (UI), komentar kode, commit messages, maupun berkas dokumentasi teknis (README, TODO, PRD).
 - Seluruh kebutuhan visual icon pada UI WAJIB menggunakan icon library SVG resmi (`@lucide/svelte`).
+
+### 9. Arsitektur Dual-Engine Speech Ingestion & Device Benchmarking
+
+- **Engine Primer (Default):** Native Web Speech API (`SpeechRecognition` / `webkitSpeechRecognition`). Standar tercepat (0 MB download, sub-100ms streaming) untuk Google Chrome, Microsoft Edge, Brave, dan Safari.
+- **Engine Sekunder (Opt-In / On-Demand):** Model AI offline `whisper-tiny` via `@huggingface/transformers`. Diunduh langsung dari Hugging Face Hub CDN ke IndexedDB lokal browser (DILARANG membundel model ke Git repository).
+- **Proteksi Hardware Device Benchmark:** Sebelum model AI dapat diunduh, sistem wajib menjalankan uji benchmark komputasi tensor CPU/WASM (mengadopsi konsep `kreier/benchmark`). Jika perangkat tergolong lambat (latensi > 1.2s), sistem wajib menampilkan modal konfirmasi dan peringatan performa kepada pengguna.

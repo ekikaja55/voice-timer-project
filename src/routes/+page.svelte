@@ -1,15 +1,17 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { Timer, Volume2, VolumeX, Settings, X, Activity } from '@lucide/svelte';
+	import { Timer, Volume2, VolumeX, Settings, X, SlidersHorizontal } from '@lucide/svelte';
 	import { matchStore, type EnemySlotState } from '../lib/stores/matchStore.svelte.js';
 	import { timerStore } from '../lib/stores/timerStore.svelte.js';
+	import { speechManager } from '../lib/speech/speechManager.svelte.js';
+	import { whisperEngine } from '../lib/speech/whisperEngine.svelte.js';
 	import { attachInputListeners } from '../lib/speech/inputHandlers.js';
 	import { audioChecker } from '../lib/speech/audioChecker.svelte.js';
 	import EnemyCard from '../lib/components/EnemyCard.svelte';
 	import VoiceBanner from '../lib/components/VoiceBanner.svelte';
 	import MatchSetupModal from '../lib/components/MatchSetupModal.svelte';
-	import AudioDiagnosticModal from '../lib/components/AudioDiagnosticModal.svelte';
 	import VoiceShazamOverlay from '../lib/components/VoiceShazamOverlay.svelte';
+	import DebugLogModal from '../lib/components/DebugLogModal.svelte';
 	import type { TimerInstance } from '../lib/types/index.js';
 
 	onMount(() => {
@@ -60,21 +62,48 @@
 
 		<!-- Right Controls -->
 		<div class="flex items-center space-x-2">
-			<!-- Mic Status Quick Diagnostic Pill -->
-			<button
-				onclick={() => audioChecker.openModal()}
-				class="flex items-center gap-1.5 rounded-xl border border-slate-800 bg-slate-900 px-3 py-1.5 font-mono text-xs font-bold text-slate-300 transition hover:border-slate-700 hover:text-white"
-				title="Buka Diagnostik Mikrofon & Audio"
+			<!-- Read-Only Unified Status Badge -->
+			<div
+				class="flex items-center gap-2 rounded-xl border px-3 py-1.5 font-mono text-xs font-bold {speechManager.selectedEngine ===
+				'WHISPER'
+					? 'border-purple-500/40 bg-purple-950/30 text-purple-300'
+					: 'border-cyan-500/40 bg-cyan-950/30 text-cyan-300'}"
+				title="Status Speech: {speechManager.selectedEngine === 'WHISPER'
+					? whisperEngine.isLoaded
+						? 'Whisper AI Offline Aktif'
+						: 'Whisper AI (Belum Dimuat)'
+					: 'Native Web Speech API'}"
 			>
-				<Activity
-					class="h-3.5 w-3.5 {audioChecker.state.isSpeechSupported
-						? 'text-emerald-400'
-						: 'text-amber-400'}"
-				/>
-				<span class="hidden sm:inline"
-					>{audioChecker.state.isSpeechSupported ? 'Mic Siap' : 'Cek Status Mic'}</span
-				>
-			</button>
+				<span
+					class="h-2 w-2 rounded-full {audioChecker.state.isSpeechSupported
+						? speechManager.selectedEngine === 'WHISPER'
+							? whisperEngine.isLoaded
+								? 'bg-purple-400 shadow-sm shadow-purple-400'
+								: 'animate-pulse bg-amber-400'
+							: 'bg-cyan-400 shadow-sm shadow-cyan-400'
+						: 'animate-ping bg-rose-500'}"
+				></span>
+				<span class="hidden sm:inline">
+					{audioChecker.state.isSpeechSupported ? 'Mic Connected' : 'Mic Warning'} •
+				</span>
+				<span>
+					{speechManager.selectedEngine === 'WHISPER'
+						? whisperEngine.isLoaded
+							? 'WHISPER AI'
+							: 'WHISPER (UNLOADED)'
+						: 'NATIVE STT'}
+				</span>
+			</div>
+
+			<!-- Dedicated Link to /settings -->
+			<a
+				href="/settings"
+				class="flex items-center gap-1.5 rounded-xl border border-slate-800 bg-slate-900 px-3 py-1.5 font-mono text-xs font-bold text-slate-300 transition hover:border-slate-700 hover:text-white"
+				title="Buka Pengaturan Lengkap (Mic, Engine, Voice Callout, Benchmark)"
+			>
+				<SlidersHorizontal class="h-3.5 w-3.5 text-slate-400" />
+				<span class="hidden sm:inline">Settings</span>
+			</a>
 
 			<!-- Audio Earcon Mute Toggle -->
 			<button
@@ -173,9 +202,9 @@
 	<!-- Setup Enemy Lineup Modal -->
 	<MatchSetupModal />
 
-	<!-- Audio & Microphone Diagnostic Modal -->
-	<AudioDiagnosticModal />
-
 	<!-- Fullscreen Shazam-Style Voice Overlay -->
 	<VoiceShazamOverlay />
+
+	<!-- Mobile & Voice Debug Log Modal -->
+	<DebugLogModal />
 </div>

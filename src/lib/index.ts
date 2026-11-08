@@ -7,3 +7,4 @@ export * from './stores/timerStore.svelte.js';
 export * from './speech/types.js';
 export * from './speech/speechManager.svelte.js';
 export * from './speech/inputHandlers.js';
+export * from './utils/index.js';

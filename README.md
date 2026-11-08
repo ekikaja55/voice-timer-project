@@ -39,16 +39,21 @@ Unlike risky on-device overlay tools, MLBB Voice Timer operates under **100% phy
 - **Zero Background Throttling**: Standard browser `setInterval` drops accuracy or halts when tabs are minimized or lose focus. Our timer core runs in a dedicated **Web Worker thread** (`src/lib/workers/timer.worker.ts`).
 - **Timestamp Delta Calculation**: Measures absolute elapsed time (`Date.now() - startedAt`), ensuring millisecond precision even during 15+ minute minimized background sessions.
 
-### 3. Procedural Audio Earcons (Web Audio API)
+### 3. Procedural Audio Earcons & Tactical Esports Voice Announcer
 
-- **Zero TTS Distraction**: No robotic text-to-speech reading long sentences that drown out in-game sound cues (e.g., bush ambush sounds) or Discord comms.
-- **Micro-Sound Synthesizer**: Generates distinctive 60–80 ms procedural chimes via `OscillatorNode`:
+- **Zero Monologue Distraction**: Replaces long sentences with high-velocity esports audio cues so in-game audio and Discord team comms stay crystal clear.
+- **Micro-Sound Synthesizer (Web Audio API)**: Generates distinctive 60–80 ms procedural chimes via `OscillatorNode`:
   - **Flicker**: High-frequency sine sweep (600 Hz $\to$ 900 Hz).
   - **Defense (Aegis/Purify)**: Dual harmonic chord (523 Hz & 659 Hz).
   - **Retribution**: Low-frequency punch impact pulse (180 Hz $\to$ 80 Hz).
   - **Spell Ready**: Double chime alert when cooldown completes.
   - **Undo**: Subtle down-sweep blip on cancellation.
-- **Zero External Assets**: Operates entirely in code without downloading heavy MP3/WAV audio files.
+- **Tactical Esports Voice Announcer (`window.speechSynthesis`)**:
+  - Ultra-concise military callouts (< 0.7s at 1.3x rate):
+    - 10-Second Ganking Alert: `"[Hero] [Spell] sepuluh"` (e.g., _"Chou flicker sepuluh"_).
+    - Ready Alert: `"[Hero] [Spell] ready"` synchronized with procedural double-ping alert.
+  - Keeps your eyes 100% focused on your smartphone during teamfights.
+  - 100% native offline support across Firefox, Chrome, Edge, Safari, Android, and iOS with zero API keys and 0 MB model download.
 
 ### 4. Glanceable HUD Interface (Optimized for 70 cm Distance)
 
@@ -67,6 +72,12 @@ Unlike risky on-device overlay tools, MLBB Voice Timer operates under **100% phy
 - **Keyboard Shortcuts**: Press `Esc` or `Backspace` for instant undo.
 - **Hold-to-Talk `Spacebar`**: Hold down the spacebar while shouting teamfight spell calls.
 - **USB Foot Pedal Support**: Mapped to trigger mic streaming so both of your hands stay 100% on your smartphone screen.
+
+### 6. Dual-Engine Speech Ingestion & Device Benchmark Gate
+
+- **Engine 1 (Default - Zero Latency)**: Native Web Speech API (`SpeechRecognition` / `webkitSpeechRecognition`) for Chrome, Edge, Brave, and Safari.
+- **Engine 2 (AI Offline - On Demand)**: `whisper-tiny` ONNX running in-browser via Hugging Face Hub CDN and IndexedDB caching for offline cross-browser flexibility.
+- **Hardware Device Benchmark Suite**: Built-in tensor computation benchmarking (inspired by `kreier/benchmark`) assessing CPU/WASM performance (0–100 score) before downloading neural weights.
 
 ---
 
